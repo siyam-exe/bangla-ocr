@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Documents · Bangla OCR{% endblock %}
+{% block content %}
+<header class="page-intro">
+  <div>
+    <h1>Bengali PDF to editable text</h1>
+    <p>Process one document locally, compare every OCR page with its scan, and export a traceable transcription.</p>
+  </div>
+  <div class="readiness {{ 'ready' if ocr.ready else 'blocked' }}">
+    <span class="status-dot {{ 'status-good' if ocr.ready else 'status-error' }}"></span>
+    <span><strong>{{ ocr.label }} {{ 'ready' if ocr.ready else 'unavailable' }}</strong><small>{{ ocr.reason }}</small></span>
+  </div>
+</header>
+
+<div class="workspace-grid">
+  <section class="surface import-card" id="import">
+    <div class="section-heading">
+      <div><h2>New document</h2><p>PDF files up to 1 GB</p></div>
+      <span class="section-index">01</span>
+    </div>
+    <form action="{{ url_for('import_book') }}" method="post" enctype="multipart/form-data">
+      <label class="dropzone" for="pdf">
+        <input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" required>
+        <span class="drop-icon">PDF</span>
+        <span><strong>Choose or drop a PDF</strong><small>The original PDF and page renders are kept as evidence.</small></span>
+      </label>
+
+      <div class="form-grid">
+        <label>Title <span class="optional">optional</span>
+          <input name="title" placeholder="Uses the filename when left empty">
+        </label>
+        <label>Author <span class="optional">optional</span>
+          <input name="author" placeholder="Unknown author">
+        </label>
+      </div>
+
+      <div class="form-grid">
+        <label>OCR engine
+          <select id="ocr-engine" name="ocr_engine">
+            {% for option in ocr.options %}
+              <option value="{{ option.name }}" data-label="{{ option.label }}" data-available="{{ 'true' if option.available else 'false' }}" data-reason="{{ option.reason|e }}" {% if option.preferred %}selected{% endif %}>
+                {{ option.label }}{% if not option.available %} — unavailable{% endif %}
+              </option>
+            {% endfor %}
+          </select>
+          <small id="ocr-engine-reason">{{ ocr.reason }}</small>
+        </label>
+        <label>Pages
+          <select name="page_mode" id="page-mode">
+            <option value="all">Entire document</option>
+            <option value="custom">Selected PDF pages</option>
+          </select>
+        </label>
+      </div>
+      <label class="custom-pages hidden" for="pages">Page selection
+        <input id="pages" name="pages" placeholder="1-20, 25, 30-40">
+        <small>Use PDF page numbers separated by commas.</small>
+      </label>
+
+      <button class="primary wide" type="submit" {% if not ocr.ready %}disabled{% endif %}>
+        <span id="ocr-submit-label">{{ "Start OCR with " ~ ocr.label if ocr.ready else "Choose an available OCR engine" }}</span>
+        <span aria-hidden="true">→</span>
+      </button>
+
+      <dialog class="model-dialog" id="ocr-unavailable-dialog">
+        <h2 id="ocr-dialog-title">OCR engine unavailable</h2>
+        <p id="ocr-dialog-reason"></p>
+        <button class="primary" id="ocr-dialog-close" type="button">Choose another engine</button>
+      </dialog>
+    </form>
+  </section>
+
+  <aside class="surface workflow-card">
+    <div class="section-heading"><div><h2>Workflow</h2><p>Nothing is silently verified</p></div><span class="section-index">02</span></div>
+    <ol class="workflow-list">
+      <li><span>1</span><div><strong>OCR</strong><small>Render and recognize each selected page locally.</small></div></li>
+      <li><span>2</span><div><strong>Review</strong><small>Compare the scan and editable text side by side.</small></div></li>
+      <li><span>3</span><div><strong>Audit</strong><small>Check missing content, page boundaries, and document structure.</small></div></li>
+      <li><span>4</span><div><strong>Export</strong><small>Download a preview anytime; verified output requires review.</small></div></li>
+    </ol>
+  </aside>
+</div>
+
+<details class="surface system-panel">
+  <summary><span><strong>System and storage</strong><small>{{ storage.snapshot.disks.system.free }} free on C: · {{ storage.snapshot.disks.output.free }} free on D:</small></span><span>Details</span></summary>
+  <div class="storage-metrics">
+    <div><span>C: free</span><strong>{{ storage.snapshot.disks.system.free }}</strong><small>Processing blocks below 12 GiB</small></div>
+    <div><span>D: free</span><strong>{{ storage.snapshot.disks.output.free }}</strong><small>Documents, models, runtime</small></div>
+    <div><span>Runtime files</span><strong>{{ storage.runtime_usage }}</strong><small>{{ storage.runtime_root }}</small></div>
+    <div><span>Available RAM</span><strong>{{ storage.snapshot.memory.physical_available or "Unavailable" }}</strong><small>Commit {{ storage.snapshot.memory.commit_used or "Unavailable" }}</small></div>
+  </div>
+  {% for warning in storage.warnings %}<p class="storage-warning">{{ warning }}</p>{% endfor %}
+  {% for error in storage.errors %}<p class="storage-error">{{ error }}</p>{% endfor %}
+  <div class="storage-actions">
+    <p>Cleanup removes only expired temporary files and incomplete uploads.</p>
+    <form method="post" action="{{ url_for('cleanup_storage') }}"><button class="secondary" type="submit" {% if not storage_cleanup_ready %}disabled{% endif %}>Clean temporary files</button></form>
+  </div>
+</details>
+
+{% if jobs %}
+<section class="section-block">
+  <div class="section-heading"><div><h2>Recent processing</h2><p>Running, interrupted, and completed jobs</p></div></div>
+  <div class="document-list">
+    {% for job in jobs %}
+      <a class="document-row" href="{{ url_for('book_dashboard', book_id=job.book_id) if job.status == 'complete' and job.book_id else url_for('job_view', job_id=job.job_id) }}">
+        <span class="document-icon">{{ "%02d"|format(loop.index) }}</span>
+        <span class="document-meta"><strong>{{ job.title or job.filename }}</strong><small>{{ job.message }}</small></span>
+        <span class="job-progress">{{ 100 if job.status == "complete" else (job.progress_percent or 0) }}%</span>
+        <span class="status-pill status-{{ job.status }}">{{ job.status|replace('_', ' ') }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="section-block">
+  <div class="section-heading"><div><h2>Documents</h2><p>Saved OCR workspaces and review progress</p></div><span class="quiet">{{ books|length }} total</span></div>
+  {% if books %}
+  <div class="document-list">
+    {% for item in books %}
+      <a class="document-row" href="{{ url_for('book_dashboard', book_id=item.manifest.book_id) }}">
+        <span class="document-icon">{{ "%02d"|format(loop.index) }}</span>
+        <span class="document-meta"><strong>{{ item.manifest.title }}</strong><small>{{ item.manifest.author }} · {{ item.summary.total }} pages</small></span>
+        <span class="review-count">{{ item.summary.human_verified }}/{{ item.summary.total }} verified</span>
+        <span class="status-pill {{ 'status-complete' if item.validation and item.validation.complete else 'status-needs_review' }}">{{ "ready" if item.validation and item.validation.complete else "review" }}</span>
+      </a>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="empty-state"><strong>No documents yet</strong><span>Import a Bengali PDF to create the first workspace.</span></div>
+  {% endif %}
+</section>
+{% endblock %}

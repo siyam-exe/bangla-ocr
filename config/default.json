@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "render": {
+    "dpi": 220,
+    "review_image_format": "webp",
+    "review_image_quality": 92
+  },
+  "preprocessing": {
+    "enabled": true,
+    "maximum_deskew_degrees": 3.0,
+    "minimum_deskew_degrees": 0.18,
+    "crop_padding_ratio": 0.035,
+    "minimum_crop_savings_ratio": 0.04,
+    "maximum_crop_per_edge_ratio": 0.12,
+    "minimum_contrast_stddev": 36.0,
+    "save_selected_variant": true
+  },
+  "ocr": {
+    "engine_order": [
+      "surya",
+      "easyocr",
+      "embedded"
+    ],
+    "preferred_primary_engine": "surya",
+    "secondary_engines_on_uncertain_only": true,
+    "run_original_and_selected_variant": false,
+    "easyocr_gpu": true,
+    "tesseract_languages": "ben+eng",
+    "tesseract_psm": 6
+  },
+  "selection": {
+    "minimum_candidate_score": 0.52,
+    "minimum_engine_confidence": 0.72,
+    "maximum_candidate_disagreement": 0.28,
+    "minimum_bengali_ratio": 0.48,
+    "minimum_render_width": 900,
+    "minimum_render_height": 1200,
+    "minimum_sharpness_laplacian_variance": 45.0
+  },
+  "multiscale": {
+    "enabled": true,
+    "high_resolution_dpi": 400,
+    "maximum_regions_per_page": 3,
+    "padding_ratio": 0.06,
+    "minimum_text_characters": 8,
+    "small_region_height_ratio": 0.045,
+    "minimum_region_confidence": 0.94,
+    "minimum_region_contrast_stddev": 24.0,
+    "minimum_region_sharpness": 35.0,
+    "minimum_disagreement": 0.015
+  },
+  "classification": {
+    "automatic_story_threshold": 0.66,
+    "minimum_story_bengali_characters": 180,
+    "front_matter_scan_pages": 12
+  },
+  "output": {
+    "default_root": "../output",
+    "author": "Unknown author",
+    "uncertainty_marker": "[অস্পষ্ট]"
+  },
+  "storage": {
+    "runtime_root": "../runtime",
+    "system_drive": "C:\\",
+    "system_warning_gib": 15,
+    "system_block_gib": 12,
+    "output_reserve_gib": 2,
+    "telemetry_interval_seconds": 30,
+    "surya_log_max_mib": 8,
+    "surya_log_backups": 3,
+    "cleanup_minimum_age_hours": 24
+  },
+  "performance": {
+    "prefetch_pages": 1,
+    "eta_window_pages": 8
+  }
+}

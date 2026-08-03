@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title or "OCR job" }} · Bangla OCR{% endblock %}
+{% block content %}
+<section
+  class="surface job-panel job-{{ job.status }}"
+  data-job-id="{{ job.job_id }}"
+  data-status="{{ job.status }}"
+>
+  <div class="job-status-line">
+    <span class="live-indicator"></span>
+    <span class="job-status-label">{{ job.status|replace('_', ' ') }}</span>
+  </div>
+  <span class="eyebrow">OCR JOB</span>
+  <h1>{{ job.title or job.filename }}</h1>
+  <p class="job-message">{{ job.message }}</p>
+
+  <div class="progress-summary">
+    <span class="job-page-count">
+      {% if job.progress_total %}
+        Page {{ job.progress_current or 0 }} of {{ job.progress_total }}
+      {% else %}
+        Preparing pages
+      {% endif %}
+    </span>
+    <strong class="job-percent">{{ job.progress_percent or 0 }}%</strong>
+  </div>
+  <div class="progress-track">
+    <span style="width: {{ job.progress_percent or 0 }}%"></span>
+  </div>
+
+  {% set resource = job.resource_latest or {} %}
+  {% set disks = resource.disks or {} %}
+  {% set memory = resource.memory or {} %}
+  <div class="job-resource-grid">
+    <span>C: free <strong data-resource-system>{{ disks.system.free if disks.system else "Measuring…" }}</strong></span>
+    <span>D: free <strong data-resource-output>{{ disks.output.free if disks.output else "Measuring…" }}</strong></span>
+    <span>RAM free <strong data-resource-ram>{{ memory.physical_available or "Measuring…" }}</strong></span>
+    <span>Estimated workspace <strong>{{ job.estimated_workspace or "Calculating…" }}</strong></span>
+  </div>
+  <div class="job-speed-grid">
+    <span>Last page <strong data-speed-last>{{ job.last_page_duration or "Measuring…" }}</strong></span>
+    <span>Recent average <strong data-speed-average>{{ job.average_page_duration or "Measuring…" }}</strong></span>
+    <span>Estimated remaining <strong data-speed-eta>{{ job.eta or "Measuring…" }}</strong></span>
+  </div>
+
+  <p class="quiet job-note">
+    {% if job.status in ["failed", "interrupted", "preserved"] %}
+      Processing is stopped. Completed pages and evidence remain in the workspace.
+    {% elif job.status == "stalled" %}
+      No new stage has completed recently. Do not start another worker until this one is checked.
+    {% else %}
+      This job continues on the OCR computer if you close this tab.
+    {% endif %}
+  </p>
+
+  {% if job.status in ["failed", "interrupted", "preserved"] %}
+    {% set current_engine = job.ocr_engine or "surya" %}
+    {% set current_option = recovery_options.get(current_engine, {}) %}
+    <section class="recovery-panel" aria-labelledby="recovery-title">
+      <span class="eyebrow">RECOVERY OPTIONS</span>
+      {% if job.failure %}
+        <div class="failure-diagnosis">
+          <span class="failure-category">{{ job.failure.category|replace('_', ' ') }}</span>
+          <h2 id="recovery-title">{{ job.failure.title }}</h2>
+          <p>{{ job.failure.explanation }}</p>
+          <details>
+            <summary>Technical detail</summary>
+            <code>{{ job.failure.technical }}</code>
+          </details>
+        </div>
+      {% else %}
+        <h2 id="recovery-title">Processing was interrupted</h2>
+        <p>The workspace is intact and can resume from unfinished pages.</p>
+      {% endif %}
+      <div class="recovery-safety">
+        <strong>{{ job.progress_current or 0 }} completed page{{ "s" if (job.progress_current or 0) != 1 }} remain safe.</strong>
+        <span>Retrying or changing engines uses this workspace and records the decision in its audit.</span>
+      </div>
+      <h3>Choose how to continue</h3>
+      <div class="recovery-actions">
+        <form method="post" action="{{ url_for('recover_job', job_id=job.job_id) }}">
+          <input type="hidden" name="action" value="retry_selected">
+          <button class="primary" type="submit" {% if not current_option.available %}disabled title="{{ current_option.reason }}"{% endif %}>
+            Retry {{ current_option.label or current_engine|title }}
+          </button>
+        </form>
+        {% for engine_name, option in recovery_options.items() %}
+          {% if engine_name != current_engine and option.available %}
+          <form method="post" action="{{ url_for('recover_job', job_id=job.job_id) }}" data-confirm-engine-switch data-engine-label="{{ option.label }}">
+            <input type="hidden" name="action" value="switch_engine">
+            <input type="hidden" name="target_engine" value="{{ engine_name }}">
+            <input type="hidden" name="confirm_engine_switch" value="yes">
+            <button class="secondary" type="submit">
+              Continue with {{ option.label }}
+            </button>
+          </form>
+          {% endif %}
+        {% endfor %}
+        <form method="post" action="{{ url_for('recover_job', job_id=job.job_id) }}">
+          <input type="hidden" name="action" value="preserve">
+          <button class="ghost" type="submit">Stop and preserve</button>
+        </form>
+      </div>
+      <details class="engine-diagnostics">
+        <summary>Why another engine may be unavailable</summary>
+        <ul>
+          {% for engine_name, option in recovery_options.items() %}
+            {% if engine_name != current_engine and not option.available %}
+              <li><strong>{{ option.label }}:</strong> {{ option.reason }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </details>
+    </section>
+  {% endif %}
+  <div class="job-actions">
+    <a class="button secondary" href="{{ url_for('home') }}">Back to documents</a>
+    <a class="button primary hidden job-open" href="#">Open document workspace</a>
+  </div>
+</section>
+{% endblock %}

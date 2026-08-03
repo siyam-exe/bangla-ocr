@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Local Bengali PDF transcription with page-level evidence and human review.">
+  <title>{% block title %}Bangla OCR{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('home') }}" aria-label="Bangla OCR home">
+      <span class="brand-mark" aria-hidden="true">অ</span>
+      <span><strong>Bangla OCR</strong><small>Local PDF transcription</small></span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a class="{{ 'active' if request.endpoint == 'home' else '' }}" href="{{ url_for('home') }}">Documents</a>
+      <a class="{{ 'active' if request.endpoint == 'openrouter_settings' else '' }}" href="{{ url_for('openrouter_settings') }}">Settings</a>
+    </nav>
+  </header>
+  <main class="{% block main_class %}shell{% endblock %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}" role="status">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

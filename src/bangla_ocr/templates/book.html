@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }} · Bangla OCR{% endblock %}
+{% block content %}
+<header class="document-header">
+  <div>
+    <a class="backlink" href="{{ url_for('home') }}">← Documents</a>
+    <h1>{{ book.title }}</h1>
+    <p>{{ book.author }} · {{ book.source_page_count or summary.total }} PDF pages</p>
+  </div>
+  {% if next_review_page %}
+    <a class="button primary" href="{{ url_for('page_review', book_id=book.book_id, page_number=next_review_page) }}">Continue review →</a>
+  {% endif %}
+</header>
+
+<section class="progress-overview surface">
+  <div class="progress-copy">
+    <strong>{{ summary.human_verified }} of {{ summary.total }} pages verified</strong>
+    <span>{{ summary.pending_human_review }} remaining{% if summary.unresolved + summary.failed %} · {{ summary.unresolved + summary.failed }} blocked{% endif %}</span>
+  </div>
+  <div class="progress-track"><span style="width: {{ (summary.human_verified / summary.total * 100) if summary.total else 0 }}%"></span></div>
+</section>
+
+<div class="workspace-toolbar surface">
+  <div class="toolbar-group">
+    <strong>Document tools</strong>
+    <form method="post" action="{{ url_for('validate_view', book_id=book.book_id) }}"><button class="secondary">Run document audit</button></form>
+  </div>
+  <div class="toolbar-group export-actions">
+    <span class="export-label">Preview</span>
+    <form method="post" action="{{ url_for('preview_view', book_id=book.book_id) }}">
+      <input type="hidden" name="format" value="markdown">
+      <button class="secondary">Download preview Markdown</button>
+    </form>
+    <form method="post" action="{{ url_for('preview_view', book_id=book.book_id) }}">
+      <input type="hidden" name="format" value="text">
+      <button class="ghost">Plain text</button>
+    </form>
+    <span class="export-divider" aria-hidden="true"></span>
+    <span class="export-label">Verified</span>
+    <form method="post" action="{{ url_for('finalize_view', book_id=book.book_id) }}">
+      <input type="hidden" name="format" value="markdown">
+      <button class="primary" {% if not verified_export_ready %}disabled title="Review every page and pass the audit first."{% endif %}>Download verified Markdown</button>
+    </form>
+    <form method="post" action="{{ url_for('finalize_view', book_id=book.book_id) }}">
+      <input type="hidden" name="format" value="text">
+      <button class="ghost" {% if not verified_export_ready %}disabled title="Review every page and pass the audit first."{% endif %}>Download verified text</button>
+    </form>
+  </div>
+</div>
+
+{% if not verified_export_ready %}
+<p class="export-note">Verified export is locked until every included page is checked and the latest structural audit passes. The preview remains clearly marked as unverified.</p>
+{% endif %}
+
+{% if validation %}
+<section class="surface validation-summary {{ 'validation-pass' if validation.complete and not validation.stale else 'validation-fail' }}">
+  <div>
+    <h2>{% if validation.stale %}Audit needs to be rerun{% elif validation.complete %}Document audit passed{% else %}Document review required{% endif %}</h2>
+    {% if validation.stale %}<p>Page {{ validation.stale_after_page or "—" }} changed after the saved audit.</p>
+    {% else %}<p>{{ validation.errors|length }} blocking · {{ validation.warnings|length }} warnings{% if validation.statistics.flagged_pages is defined %} · {{ validation.statistics.flagged_pages }} flagged pages{% endif %}</p>{% endif %}
+  </div>
+  {% if validation.review_queue and not validation.stale %}
+    <details><summary>Review {{ validation.review_queue|length }} structural finding{{ "s" if validation.review_queue|length != 1 }}</summary>
+      <ol class="audit-findings">
+        {% for finding in validation.review_queue[:80] %}
+          <li>{% if finding.page_number %}<a href="{{ url_for('page_review', book_id=book.book_id, page_number=finding.page_number) }}">PDF page {{ finding.page_number }}</a>{% else %}Document{% endif %}: {{ finding.message }} <span class="audit-code">{{ finding.code|replace('_', ' ') }}</span></li>
+        {% endfor %}
+      </ol>
+    </details>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="section-block">
+  <div class="section-heading page-heading">
+    <div><h2>Pages</h2><p>Open a page to compare the scan and transcription.</p></div>
+    <div class="page-controls">
+      <label class="compact-select">Show
+        <select id="page-filter">
+          <option value="all">All pages</option>
+          <option value="needs-review">Needs review</option>
+          <option value="verified">Verified</option>
+          <option value="flagged">Flagged</option>
+        </select>
+      </label>
+      <form class="page-jump" data-page-jump data-book-id="{{ book.book_id }}">
+        <label for="page-jump-input">Go to PDF page</label>
+        <input id="page-jump-input" type="number" min="1" max="{{ pages|length }}" placeholder="1">
+        <button class="secondary" type="submit">Go</button>
+      </form>
+    </div>
+  </div>
+  <div class="page-grid" data-page-grid>
+    {% for page in pages %}
+      {% set is_verified = page.workflow.overall in ['human_verified', 'excluded_verified'] %}
+      {% set is_flagged = page.anomalies or page.structural_findings %}
+      <a class="page-card page-{{ page.workflow.overall }}" data-verified="{{ 'true' if is_verified else 'false' }}" data-flagged="{{ 'true' if is_flagged else 'false' }}" href="{{ url_for('page_review', book_id=book.book_id, page_number=page.page_number) }}">
+        <div class="page-card-top"><strong>{{ "%03d"|format(page.page_number) }}</strong><span class="page-state-dot"></span></div>
+        <span class="page-status">{{ 'ready to review' if page.workflow.overall == 'automated_checks_passed' else page.workflow.overall|replace('_', ' ') }}</span>
+        <div class="page-info">
+          <span>{{ page.manual.page_role|replace('_', ' ') }}</span>
+          {% if page.anomalies %}<span class="risk">{{ page.anomalies|length }} text</span>{% endif %}
+          {% if page.structural_findings %}<span class="structure">{{ page.structural_findings|length }} structure</span>{% endif %}
+          {% if page.proposal_count %}<span class="proposal-count">{{ page.proposal_count }} suggestion{{ "s" if page.proposal_count != 1 }}</span>{% endif %}
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+  <div class="empty-state compact hidden" id="page-filter-empty">No pages match this filter.</div>
+</section>
+{% endblock %}

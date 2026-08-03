@@ -1,0 +1,143 @@
+{
+  "policy": {
+    "name": "Bangla OCR Faithful Transcription Rules",
+    "version": "1.0.0",
+    "mode": "diplomatic",
+    "source_of_truth": "original_page_image",
+    "governing_principle": "faithful_transcription_never_editorial_rewriting"
+  },
+  "reader_output": {
+    "canonical_format": "markdown",
+    "encoding": "UTF-8",
+    "unicode_normalization": "NFC",
+    "generated_formats": ["txt"],
+    "include": [
+      "title",
+      "author",
+      "story_titles",
+      "printed_chapter_headings",
+      "printed_section_headings",
+      "story_text"
+    ],
+    "exclude": [
+      "covers",
+      "copyright_pages",
+      "publisher_information",
+      "printer_information",
+      "edition_notices",
+      "prices",
+      "isbn",
+      "advertisements",
+      "uploader_text",
+      "watermarks",
+      "running_headers",
+      "running_footers",
+      "page_numbers",
+      "scan_artifacts",
+      "duplicated_pages"
+    ],
+    "visible_page_markers": false,
+    "internal_page_mapping": "required"
+  },
+  "preservation": {
+    "spelling": "exact",
+    "grammar": "exact",
+    "vocabulary": "exact",
+    "punctuation": "exact",
+    "quotation_style": "exact",
+    "paragraph_boundaries": "exact",
+    "printed_chapters_only": true,
+    "meaningful_bold": "preserve",
+    "meaningful_italics": "preserve",
+    "scene_breaks": "preserve",
+    "prose_line_wraps": "unwrap",
+    "intentional_line_breaks": "preserve",
+    "page_continuation_paragraphs": "join",
+    "modernize_language": false,
+    "paraphrase": false,
+    "translate": false,
+    "censor": false
+  },
+  "uncertainty": {
+    "reader_marker": "[অস্পষ্ট]",
+    "guesses_in_reader_text": false,
+    "candidate_readings_location": "audit/unresolved.jsonl",
+    "unresolved_blocks_verified_status": true,
+    "missing_or_cropped_line_severity": "red",
+    "missing_or_cropped_page_severity": "red"
+  },
+  "ocr": {
+    "minimum_independent_candidates_when_practical": 2,
+    "retain_raw_outputs": true,
+    "retain_coordinates": true,
+    "retain_confidence": true,
+    "require_visible_line_count_check": true,
+    "detect": [
+      "missing_pages",
+      "duplicate_pages",
+      "cropped_lines",
+      "omitted_lines",
+      "duplicated_lines",
+      "wrong_reading_order"
+    ]
+  },
+  "ai": {
+    "role": "image_grounded_ocr_verifier",
+    "temperature": 0,
+    "must_receive": [
+      "original_image_crop",
+      "restored_image_crop_when_available",
+      "ocr_candidates",
+      "neighbouring_context_when_available",
+      "page_identifier",
+      "line_identifier"
+    ],
+    "allowed": [
+      "visually_supported_character_correction",
+      "visually_supported_punctuation_correction",
+      "line_order_detection",
+      "paragraph_continuation_confirmation",
+      "uncertainty_detection"
+    ],
+    "forbidden": [
+      "rewriting",
+      "paraphrasing",
+      "grammar_correction",
+      "spelling_modernization",
+      "contextual_completion_without_pixels",
+      "unsupported_punctuation",
+      "silent_omission",
+      "silent_uncertainty"
+    ],
+    "log_every_change": true,
+    "audit_file": "audit/corrections.jsonl",
+    "required_change_fields": [
+      "page_id",
+      "line_id",
+      "original_ocr_text",
+      "verified_text",
+      "changed_span",
+      "reason",
+      "confidence",
+      "review_status"
+    ]
+  },
+  "verification_states": {
+    "green": "verified_against_image",
+    "yellow": "image_supported_correction_logged",
+    "red": "unresolved_requires_review"
+  },
+  "completion": {
+    "require_all_pages_processed": true,
+    "require_reading_order_verified": true,
+    "require_paragraph_structure_verified": true,
+    "require_dialogue_and_punctuation_verified": true,
+    "require_all_ai_changes_logged": true,
+    "allow_red_items_for_verified_book": false,
+    "require_title": true,
+    "require_author": true,
+    "require_utf8_validation": true,
+    "require_nfc_validation": true,
+    "require_source_page_traceability": true
+  }
+}
