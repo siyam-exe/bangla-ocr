@@ -125,8 +125,8 @@ document workspace.
 - Runtime/model caches and temporary files are redirected to project storage.
 - Processing is resumable from completed pages.
 
-On the release-validation laptop, the private 20-page Surya/crop pilot averaged
-23.2 seconds per processed page. This is hardware- and scan-dependent.
+On the release-validation laptop, the public 20-page real-scan benchmark
+averaged 23.2 seconds per processed page. This is hardware- and scan-dependent.
 
 ## Fidelity rules
 

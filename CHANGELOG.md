@@ -14,13 +14,13 @@
 - Fixed crop coordinate mapping across deskew and conservative-crop transforms.
 - Bounded Surya crop decoding to prevent small regions from triggering a
   full-page token loop.
-- Added a reproducible CC0 Bengali accuracy fixture and published CER/WER,
-  hardware, CPU, GPU, and private real-book crop validation results.
+- Added a reproducible 20-page real-book benchmark with visually checked
+  references, source-page provenance, CER/WER, and recorded test hardware.
 - Added pinned, checksummed CPU/CUDA llama.cpp installation and explicit
   runtime selection.
 - Added local-network exposure safeguards, failed-upload cleanup, security and
-  privacy documentation, third-party notices, release hygiene checks, free CI,
-  weekly dependency auditing, and Dependabot.
+  privacy documentation, third-party notices, release hygiene checks, weekly
+  dependency auditing, and Dependabot.
 - Upgraded to security-fixed Pillow 12.3 with a narrowly checked Surya 0.22.1
   compatibility override.
 

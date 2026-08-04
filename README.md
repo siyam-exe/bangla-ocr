@@ -61,9 +61,10 @@ embedded PDF text and no generated source prose.
 | Processing time | **464.0 s** |
 
 These numbers are the uncorrected Surya output. They deliberately do not count
-pending crop alternatives or human fixes as automatic accuracy. The reference
-transcriptions and all 20 source-page renders are reviewable in the repository.
-See [the full methodology and per-page results](benchmarks/RESULTS.md).
+pending crop alternatives or human fixes as automatic accuracy. The real
+20-page PDF, reference transcriptions, and source-page mapping are reviewable
+in the repository. See
+[the full methodology and per-page results](benchmarks/RESULTS.md).
 
 ## Quick start on Windows
 

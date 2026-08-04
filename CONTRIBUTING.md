@@ -6,9 +6,10 @@ scan is the authority and software must not silently rewrite it.
 ## Before opening a change
 
 1. Use a clean branch.
-2. Do not add copyrighted books, private OCR workspaces, API keys, model
-   weights, or runtime binaries.
-3. Use the public CC0 fixture for screenshots and accuracy tests.
+2. Do not add books or scans beyond the repository's designated benchmark,
+   private OCR workspaces, API keys, model weights, or runtime binaries.
+3. Use the committed real-scan benchmark for screenshots and accuracy tests;
+   do not substitute generated text or unapproved document pages.
 4. Add tests for behavior changes, especially state transitions, export gates,
    coordinate transforms, and recovery paths.
 5. Explain any fidelity trade-off in the pull request.
