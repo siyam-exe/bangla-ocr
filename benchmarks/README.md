@@ -1,36 +1,39 @@
-# Accuracy benchmarks
+# Accuracy benchmark
 
-This directory contains a reproducible, redistributable benchmark for Bangla
-OCR. The fixture text is original project material released under CC0-1.0. It
-does not contain scans or text from Tin Goyenda or any other copyrighted book.
+This directory contains a reproducible 20-page benchmark made from real scans
+selected across **Volume 002-1**. It is not synthetic and contains no generated
+book text. The selection deliberately includes a publisher page, a chapter
+opening with an illustration, dense dialogue and prose, degraded/noisy pages,
+page continuations, and a sparse final page.
 
-Generate the image-only PDF and reference renders:
+The sequential page-to-source-page mapping and source PDF hash are recorded in
+[`fixture/source-pages.json`](fixture/source-pages.json). Publication and
+rights details are in [`fixture/NOTICE.md`](fixture/NOTICE.md).
 
-```powershell
-.\.venv\Scripts\python.exe benchmarks\generate_public_fixture.py
-```
-
-Process it with the application or CLI, then score the workspace:
+Process the committed image-only PDF with the application or CLI, then score
+the resulting workspace:
 
 ```powershell
 .\bangla-ocr.ps1 process benchmarks\fixture\bangla-preservation-benchmark.pdf `
-  --title "Bangla preservation benchmark" --author "Bangla OCR contributors" `
-  --engines "surya,embedded" --output-root benchmark-output
+  --title "Volume 002-1 real-scan benchmark" `
+  --author "Rokib Hasan" `
+  --engines "surya,embedded" `
+  --output-root benchmark-output
 
 .\.venv\Scripts\python.exe benchmarks\score_workspace.py `
-  benchmark-output\bangla-preservation-benchmark-* `
+  benchmark-output\volume-002-1-real-scan-benchmark-* `
   --output benchmarks\results\local-surya.json
 ```
 
 The scorer reports character error rate (CER), word error rate (WER), exact
-page matches, paragraph counts, runtime, and multiscale crop activity. It
-scores only the fixture pages present in the workspace, so a one-page
-compatibility run is valid. Absolute local paths are omitted unless
-`--include-workspace-path` is requested.
+page matches, paragraph counts, runtime, and multiscale crop activity. Absolute
+local paths are omitted unless `--include-workspace-path` is requested.
 
-Published release results and limitations are in [RESULTS.md](RESULTS.md).
-OCR output remains a draft even when benchmark scores are high.
+Reference transcriptions were prepared from the real Surya drafts and visually
+checked line by line against the scans. They preserve printed spelling,
+punctuation, paragraph boundaries, and page fragments. They are reviewable
+reference files, not independent double-key human transcriptions; corrections
+and disagreements should be reported with the source-page evidence.
 
-The private 20-page Volume 002-1 validation is described in the published
-results only as aggregate data. Its source images and transcription are never
-placed in this repository.
+Published results and limitations are in [RESULTS.md](RESULTS.md). OCR output
+remains a draft even when benchmark scores are high.

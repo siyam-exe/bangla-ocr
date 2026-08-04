@@ -51,6 +51,8 @@ release SHA-256 digests before extraction. Binaries are installed into ignored
 
 ## Benchmark fixture
 
-The Bengali text and generated page images under `benchmarks/fixture/` are
-original project material dedicated to the public domain under CC0-1.0. See
-`benchmarks/fixture/LICENSE.txt`.
+The real scanned excerpts and their reference transcriptions under
+`benchmarks/fixture/` are not covered by the Apache-2.0 code license. They are
+included for reproducible OCR evaluation under the scope described in
+`benchmarks/fixture/NOTICE.md`; rights in the underlying book remain with their
+respective rights holders.

@@ -11,7 +11,7 @@ documents. Bangla OCR keeps the scan as the authority: OCR creates a draft,
 automated checks find risk, and a human decides every correction before a
 verified export is allowed.
 
-![The reviewer showing a public synthetic page beside its OCR output](docs/images/reviewer-benchmark.png)
+![The reviewer showing a real Volume 002-1 scan beside its Surya OCR output](docs/images/reviewer-benchmark.png)
 
 ## Why I made this
 
@@ -46,24 +46,24 @@ control over the result.
 
 ## Measured accuracy
 
-The included public benchmark is an original, CC0, five-page Bengali fixture
-with clean, blurred, skewed, noisy, compressed, unevenly lit, and resized scan
-conditions. It contains no embedded PDF text.
+The included benchmark uses 20 real pages selected across Volume 002-1. It
+contains varied book layouts, dense prose and dialogue, a chapter opening,
+degraded/noisy scans, page fragments, and a sparse final page. There is no
+embedded PDF text and no generated source prose.
 
 | Metric | Automatic Surya result |
 |---|---:|
-| Character error rate (CER) | **0.385%** |
-| Character accuracy | **99.615%** |
-| Word error rate (WER) | **2.273%** |
-| Exact pages | **1 / 5** |
-| Reference characters | **2,595** |
-| Processing time | **68.4 s** |
+| Character error rate (CER) | **1.452%** |
+| Character accuracy | **98.548%** |
+| Word error rate (WER) | **5.732%** |
+| Exact pages before review | **0 / 20** |
+| Reference characters | **36,237** |
+| Processing time | **464.0 s** |
 
-These numbers describe this small controlled fixture, not all Bengali books.
-Real scans can be much harder. One degraded benchmark page produced an exact
-high-resolution crop alternative for its quote marks, but the application
-correctly left that change for a human to accept. See
-[the full methodology and per-page results](benchmarks/RESULTS.md).
+These numbers are the uncorrected Surya output. They deliberately do not count
+pending crop alternatives or human fixes as automatic accuracy. The reference
+transcriptions and all 20 source-page renders are reviewable in the repository.
+See [the full methodology and per-page results](benchmarks/RESULTS.md).
 
 ## Quick start on Windows
 
@@ -124,9 +124,9 @@ for review and for mapping every high-resolution crop back to the original.
 | OCR | Surya 0.22.1 |
 | Inference | llama.cpp b10107 (`c0bc8591e`) |
 
-On the same exact public page, GPU processing took 5.45 seconds and verified
-CPU-only processing took 41.67 seconds. Both produced an exact transcription
-for that page. This is a compatibility smoke test, not a general speed ratio.
+The real 20-page CUDA benchmark completed in 464 seconds, or 23.2 seconds per
+page on average, including the crop pass and first-use overhead. Runtime varies
+with scan condition, selected regions, thermals, and model cache state.
 
 ## Important warnings
 
@@ -151,8 +151,9 @@ for that page. This is a compatibility smoke test, not a general speed ratio.
 ```
 
 The repository excludes PDFs supplied by users, OCR outputs, models, runtime
-binaries, virtual environments, API keys, and local configuration. The only
-committed PDF is the original CC0 benchmark fixture.
+binaries, virtual environments, API keys, and local configuration. The sole
+committed PDF is the authorized 20-page real-scan benchmark excerpt described
+in [`benchmarks/fixture/NOTICE.md`](benchmarks/fixture/NOTICE.md).
 
 Read [PIPELINE.md](PIPELINE.md) for the architecture,
 [transcription-rules.md](transcription-rules.md) for the fidelity contract,

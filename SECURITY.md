@@ -44,7 +44,7 @@ Uploaded names are reduced to a basename and sanitized before storage.
 ## Dependency audit
 
 The release candidate was checked with `pip-audit 2.10.1`; the final environment
-reported no known vulnerabilities on 2026-08-03. Run the local dependency audit
+reported no known vulnerabilities on 2026-08-04. Run the local dependency audit
 before each release; a clean result is a point-in-time signal, not a guarantee:
 
 ```powershell
@@ -60,7 +60,7 @@ Pillow 12.3 and accepts only this exact metadata conflict.
 
 The override passed:
 
-- the complete 73-test project suite;
+- the complete 74-test project suite;
 - a real Surya full-page recognition run;
 - three high-resolution crop rereads;
 - the public benchmark page with identical OCR output to the pre-upgrade run.

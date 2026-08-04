@@ -22,7 +22,7 @@ EXCLUDED_PARTS = {
     "__pycache__",
 }
 ALLOWED_PDF = Path("benchmarks/fixture/bangla-preservation-benchmark.pdf")
-BENCHMARK_SHA256 = "c95e95a7190f767549ff0588db00637435b2f55b77014b12240dacbad25c538d"
+BENCHMARK_SHA256 = "41ae15a7d7ef6fdfc9fdd6b24b9f97b9892fdffbe23d054b7e1b1f27922a2df7"
 TEXT_SUFFIXES = {
     ".cmd",
     ".css",

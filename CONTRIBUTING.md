@@ -30,14 +30,13 @@ Install the full OCR stack only when testing Surya:
 ## Benchmark
 
 ```powershell
-.\.venv\Scripts\python.exe benchmarks\generate_public_fixture.py
 .\bangla-ocr.ps1 process benchmarks\fixture\bangla-preservation-benchmark.pdf `
-  --title "Bangla preservation benchmark" `
-  --author "Bangla OCR contributors" `
+  --title "Volume 002-1 real-scan benchmark" `
+  --author "Rokib Hasan" `
   --engines "surya,embedded" `
   --output-root benchmark-output
 .\.venv\Scripts\python.exe benchmarks\score_workspace.py `
-  benchmark-output\bangla-preservation-benchmark-*
+  benchmark-output\volume-002-1-real-scan-benchmark-*
 ```
 
 Do not update published numbers without retaining the raw JSON result and
