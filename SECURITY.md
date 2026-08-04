@@ -44,9 +44,13 @@ Uploaded names are reduced to a basename and sanitized before storage.
 ## Dependency audit
 
 The release candidate was checked with `pip-audit 2.10.1`; the final environment
-reported no known vulnerabilities on 2026-08-03. Free GitHub Actions reruns the
-audit weekly and on demand. A clean result is a point-in-time signal, not a
-guarantee.
+reported no known vulnerabilities on 2026-08-03. Run the local dependency audit
+before each release; a clean result is a point-in-time signal, not a guarantee:
+
+```powershell
+python scripts/check_dependencies.py --allow-surya-pillow-override
+python -m pip_audit --local --skip-editable
+```
 
 ### Surya and Pillow compatibility
 
