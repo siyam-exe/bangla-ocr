@@ -1,4 +1,4 @@
-# Bangla OCR Faithful Transcription Rules
+# Bangla OCR Exact Transcription Rules
 
 Policy version: 1.0.0
 Status: Authoritative
@@ -6,7 +6,7 @@ Applies to: All OCR, AI verification, human review, and text exports in this pro
 
 ## 1. Purpose
 
-The project creates faithful digital transcriptions of Bengali documents from scanned PDFs.
+The project creates digital transcriptions of Bengali documents from scanned PDFs.
 
 The goal is to reproduce the printed literary text, not to edit, modernize, summarize, translate, improve, or reinterpret it.
 

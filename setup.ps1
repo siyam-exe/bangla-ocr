@@ -31,9 +31,7 @@ $env:PIP_CACHE_DIR = $CachePath
 & $Python -m pip install --upgrade pip
 
 if ($WithSurya) {
-    # Surya 0.22.1 still declares Pillow <11. Install it first, then let the
-    # application upgrade Pillow to the security-fixed compatibility version.
-    # The exact upstream metadata mismatch is checked explicitly below.
+    # Install Surya before applying the tested Pillow compatibility override.
     & $Python -c "import importlib.metadata as m; raise SystemExit(0 if m.version('surya-ocr') == '0.22.1' else 1)" 2>$null
     $SuryaReady = $LASTEXITCODE -eq 0
     if (-not $SuryaReady) {

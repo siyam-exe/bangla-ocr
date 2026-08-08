@@ -117,8 +117,7 @@ def classify_page(
     if counts["non_whitespace"] < 35:
         return "blank_or_visual", False, 0.05, ["very little recognizable text"]
 
-    # A dense page of Bengali prose is likely story content. This is deliberately
-    # conservative: ambiguous exclusions go to review and are never deleted.
+    # Dense Bengali prose is likely story content; ambiguous pages stay in review.
     density_score = min(1.0, math.log1p(bengali) / math.log1p(1200))
     punctuation = sum(text.count(char) for char in STORY_PUNCTUATION)
     prose_score = min(1.0, punctuation / max(2.0, bengali / 100))

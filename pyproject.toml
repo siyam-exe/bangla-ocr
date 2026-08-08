@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bangla-ocr"
 version = "1.2.0"
-description = "Local-first, evidence-preserving Bengali book transcription pipeline"
+description = "Bengali OCR for scanned Bangla PDFs, books, and documents"
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.11"

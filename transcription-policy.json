@@ -1,10 +1,10 @@
 {
   "policy": {
-    "name": "Bangla OCR Faithful Transcription Rules",
+    "name": "Bangla OCR Exact Transcription Rules",
     "version": "1.0.0",
     "mode": "diplomatic",
     "source_of_truth": "original_page_image",
-    "governing_principle": "faithful_transcription_never_editorial_rewriting"
+    "governing_principle": "exact_transcription_no_editorial_rewriting"
   },
   "reader_output": {
     "canonical_format": "markdown",

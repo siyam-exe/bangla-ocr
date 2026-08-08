@@ -15,5 +15,5 @@ rights holders.
 The reference files were prepared from the OCR drafts and visually checked
 against the corresponding scans line by line. They preserve the printed
 spelling, punctuation, paragraph boundaries, and page fragments. They are
-transparent, reviewable reference transcriptions—not independent double-key
+transparent, reviewable reference transcriptions; not independent double-key
 human transcriptions.

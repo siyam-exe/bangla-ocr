@@ -521,7 +521,7 @@ def test_import_dashboard_blocks_silent_engine_fallback(monkeypatch, tmp_path):
 
     assert dashboard.status_code == 200
     assert b"Surya unavailable" in dashboard.data
-    assert b"Surya \xe2\x80\x94 unavailable" in dashboard.data
+    assert b"Surya (unavailable)" in dashboard.data
     assert b"EasyOCR" in dashboard.data
     assert b"ocr-unavailable-dialog" in dashboard.data
     assert b"disabled" in dashboard.data

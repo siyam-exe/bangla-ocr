@@ -149,7 +149,7 @@ def _finalize(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="bangla-ocr",
-        description="Faithful local Bengali PDF-to-text preservation pipeline",
+        description="Bengali PDF-to-text OCR and review pipeline",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 

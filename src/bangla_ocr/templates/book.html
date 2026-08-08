@@ -56,7 +56,7 @@
 <section class="surface validation-summary {{ 'validation-pass' if validation.complete and not validation.stale else 'validation-fail' }}">
   <div>
     <h2>{% if validation.stale %}Audit needs to be rerun{% elif validation.complete %}Document audit passed{% else %}Document review required{% endif %}</h2>
-    {% if validation.stale %}<p>Page {{ validation.stale_after_page or "—" }} changed after the saved audit.</p>
+    {% if validation.stale %}<p>Page {{ validation.stale_after_page or "unknown" }} changed after the saved audit.</p>
     {% else %}<p>{{ validation.errors|length }} blocking · {{ validation.warnings|length }} warnings{% if validation.statistics.flagged_pages is defined %} · {{ validation.statistics.flagged_pages }} flagged pages{% endif %}</p>{% endif %}
   </div>
   {% if validation.review_queue and not validation.stale %}

@@ -16,8 +16,7 @@ def lines_to_text(lines: list[OCRLine]) -> str:
     if not usable:
         return ""
 
-    # Engines usually return one box per word or line. Group boxes that overlap
-    # vertically, then sort within each visual line from left to right.
+    # Group overlapping boxes into visual lines.
     usable.sort(key=lambda item: ((item.bbox[1] + item.bbox[3]) / 2, item.bbox[0]))
     visual_lines: list[list[OCRLine]] = []
     for item in usable:

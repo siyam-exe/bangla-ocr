@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## 1.2.0 — 2026-08-03
+## 1.2.0 - 2026-08-03
 
 - Added a bounded, configurable high-resolution Surya crop pass for small,
   low-confidence, visibly weak, or mechanically suspicious text regions.
@@ -24,7 +24,7 @@
 - Upgraded to security-fixed Pillow 12.3 with a narrowly checked Surya 0.22.1
   compatibility override.
 
-## 1.1.0 — 2026-08-02
+## 1.1.0 - 2026-08-02
 
 - Added categorized OCR failure explanations, preserved-progress information,
   technical diagnostics, and explicit recovery using any available OCR engine.
@@ -36,7 +36,7 @@
   automated self-tests, OCR health checks, optional safe Git pulling, and
   double-click launchers.
 
-## 1.0.0 — 2026-08-01
+## 1.0.0 - 2026-08-01
 
 - Rebranded the application and Python package as Bangla OCR.
 - Rebuilt the import, job, document, review, and settings interfaces.

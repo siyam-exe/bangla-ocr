@@ -1,167 +1,132 @@
 # Bangla OCR
 
-![Status](https://img.shields.io/badge/status-public_beta-245c48)
 ![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-3776ab)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078d4)
 ![License](https://img.shields.io/badge/code-Apache--2.0-d22128)
-![Privacy](https://img.shields.io/badge/default-local_only-6b7280)
 
-Faithful, local-first Bengali PDF transcription for scanned books and
-documents. Bangla OCR keeps the scan as the authority: OCR creates a draft,
-automated checks find risk, and a human decides every correction before a
-verified export is allowed.
+Bangla OCR is a Bengali OCR application for converting scanned Bangla PDFs
+and book pages into editable text. It uses Surya OCR, keeps the original scan
+beside the result, and gives you a page-by-page review screen before export.
 
-![The reviewer showing a real Volume 002-1 scan beside its Surya OCR output](docs/images/reviewer-benchmark.png)
+![Bangla OCR reviewing a real scanned book page](docs/images/reviewer-benchmark.png)
 
 ## Why I made this
 
-I grew up loving *Tin Goyenda*, and that childhood connection made the books
-and Rokib Hasan's work deeply important to me. The project began as a private
-attempt to preserve those books faithfully when I found that many surviving
-digital copies were incomplete, poorly scanned, photographed at odd angles, or
-difficult to read. The goal was never to modernize or rewrite them—only to keep
-the original words, paragraphing, dialogue, and structure intact.
+I grew up reading *Tin Goyenda*, and Rokib Hasan's books were a big part of my
+childhood. Many of the PDFs available today are rough scans, photographed
+pages, or copies that are difficult to read. I wanted a practical way to
+preserve the text without changing the original writing, dialogue, spelling,
+or paragraph structure.
 
-Once the preservation workflow began working, it felt wrong to keep the tool
-limited to one series. Many Bengali books face the same problem. Bangla OCR is
-therefore being released as a general preservation tool so other readers and
-archivists can recover text from aging Bengali scans while retaining human
-control over the result.
+While working on *Tin Goyenda*, I realised the same tool could help preserve
+many other Bengali books and documents. That is why I decided to make Bangla
+OCR public instead of keeping it tied to one series.
 
-## What makes it different
+## What it does
 
-- **Scan-faithful by design.** No dictionary or generative model silently
-  changes the text.
-- **Surya full-page OCR.** Surya is the primary Bengali recognition engine;
-  EasyOCR is an explicit recovery option, never a silent fallback.
-- **High-resolution crop rereads.** Suspicious or small regions are rendered at
-  400 DPI, reread in bounded mode, and shown as alternatives.
-- **Evidence beside every decision.** The original page, processed image,
-  engine output, crop evidence, revision history, and review state remain in
-  the document workspace.
-- **Human-gated export.** Verified Markdown and text stay locked until every
-  included page is checked and the whole-document audit passes.
-- **Local by default.** PDFs and OCR stay on the machine. An optional
-  OpenRouter page suggestion sends data only after the user explicitly asks.
+- Converts scanned Bengali PDFs into editable text.
+- Uses Surya as the main OCR engine.
+- Shows the scan and OCR result side by side.
+- Rereads small or suspicious regions at higher resolution.
+- Keeps crop disagreements for the user to decide.
+- Saves progress so interrupted books can be resumed.
+- Exports reviewed books as Markdown or plain text.
+- Offers EasyOCR as a manual fallback when Surya cannot continue.
+- Keeps document processing on your computer by default.
 
-## Measured accuracy
+An optional OpenRouter tool can suggest a correction for one review page. It
+never changes the document automatically.
 
-The included benchmark uses 20 real pages selected across Volume 002-1. It
-contains varied book layouts, dense prose and dialogue, a chapter opening,
-degraded/noisy scans, page fragments, and a sparse final page. There is no
-embedded PDF text and no generated source prose.
+## Accuracy on a real scanned book
 
-| Metric | Automatic Surya result |
+The included benchmark uses 20 real pages from a scanned Bengali book. Human
+corrections and crop suggestions were not counted as automatic OCR accuracy.
+
+| Result | Surya OCR |
 |---|---:|
-| Character error rate (CER) | **1.452%** |
 | Character accuracy | **98.548%** |
-| Word error rate (WER) | **5.732%** |
-| Exact pages before review | **0 / 20** |
-| Reference characters | **36,237** |
-| Processing time | **464.0 s** |
+| Character error rate | **1.452%** |
+| Word error rate | **5.732%** |
+| Average time on RTX 4050 | **23.2 seconds per page** |
 
-These numbers are the uncorrected Surya output. They deliberately do not count
-pending crop alternatives or human fixes as automatic accuracy. The real
-20-page PDF, reference transcriptions, and source-page mapping are reviewable
-in the repository. See
-[the full methodology and per-page results](benchmarks/RESULTS.md).
+These numbers describe one book and one computer, not every Bengali scan. See
+[the benchmark results](benchmarks/RESULTS.md) for the selected pages,
+hardware, method, and limitations.
 
-## Quick start on Windows
+## Install on Windows
 
-Requirements:
+You need:
 
-- Windows 10 or 11, x64
+- Windows 10 or 11
 - Python 3.12 with the `py` launcher
-- NVIDIA GPU recommended; CPU mode works but is substantially slower
-- About 4–6 GiB free for the CUDA environment, runtime, and first model cache,
-  plus space for document workspaces
+- An NVIDIA GPU for the best speed, or CPU mode for slower processing
+- Around 4 to 6 GiB of free space for the CUDA environment and model files
+
+The easiest method is to download the repository, then double-click:
+
+1. `Install Bangla OCR.cmd`
+2. `Start Bangla OCR.cmd`
+
+You can also install it from PowerShell:
 
 ```powershell
-# Clone or download this repository, then open PowerShell in its folder.
 .\setup.ps1 -WithSurya -Runtime Auto
 .\bangla-ocr.ps1 doctor
 .\bangla-ocr.ps1 app
 ```
 
-Or double-click `Install Bangla OCR.cmd`, then `Start Bangla OCR.cmd`. The
-interface opens only on <http://127.0.0.1:8765> by default.
-
-For a smaller CPU-only runtime:
+For CPU-only installation:
 
 ```powershell
 .\setup.ps1 -WithSurya -Runtime Cpu
 ```
 
-The pinned llama.cpp runtime is downloaded from the official release and
-verified with SHA-256 before installation. See [INSTALL.md](INSTALL.md) for the
-complete clean-install, update, storage, and troubleshooting guide.
+The application opens at <http://127.0.0.1:8765>. Read
+[INSTALL.md](INSTALL.md) for updates, storage settings, and troubleshooting.
 
-## Preservation workflow
+## How a book is processed
 
 ```text
-PDF import
-  -> page render and conservative preprocessing
-  -> full-page Surya OCR
-  -> structural and text-risk checks
-  -> selected 400-DPI crop rereads
-  -> side-by-side human review
-  -> whole-document audit
-  -> verified Markdown / plain text
+Import PDF
+  -> render and inspect each page
+  -> apply conservative page-specific preprocessing
+  -> run full-page Surya OCR
+  -> reread selected regions at higher resolution
+  -> review the scan and text side by side
+  -> check the complete document
+  -> export Markdown or plain text
 ```
 
-Preprocessing is selected per page. Deskewing and border removal are bounded;
-there is no universal destructive crop. The unchanged source render is retained
-for review and for mapping every high-resolution crop back to the original.
+The software does not silently apply dictionary corrections, AI rewrites, or
+crop alternatives. The user makes the final decision when the readings differ.
 
-## Hardware tested
+## Things to know
 
-| Component | Release validation system |
-|---|---|
-| OS | Windows 11 Pro, build 26200 |
-| CPU | Intel Core i5-13420H, 8 cores / 12 threads |
-| RAM | 7.7 GiB usable |
-| GPU | NVIDIA RTX 4050 Laptop GPU, 6 GiB VRAM |
-| Driver | NVIDIA 560.94 |
-| OCR | Surya 0.22.1 |
-| Inference | llama.cpp b10107 (`c0bc8591e`) |
-
-The real 20-page CUDA benchmark completed in 464 seconds, or 23.2 seconds per
-page on average, including the crop pass and first-use overhead. Runtime varies
-with scan condition, selected regions, thermals, and model cache state.
-
-## Important warnings
-
-- This is a **public beta**, not an automatic archival authority. Always review
-  the complete page against the scan.
-- Do not expose the web interface to the public internet. It has no user
-  authentication, TLS, or multi-tenant isolation.
-- The code is Apache-2.0, but Surya's model weights have a separate modified
-  OpenRAIL-M license with commercial-use conditions. Read
+- Bangla OCR is a public beta. Review the text against the scan before treating
+  it as complete.
+- The local web interface has no login system. Do not expose it directly to the
+  public internet.
+- Surya model weights use their own license. See
   [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-- Surya 0.22.1 currently declares an old Pillow constraint. This project uses a
-  tested Pillow 12.3 security compatibility override; details are in
-  [SECURITY.md](SECURITY.md).
-- Only process documents you have the right to copy and transcribe.
+- Only process documents you have permission to copy or transcribe.
+
+## Project documents
+
+- [Installation and troubleshooting](INSTALL.md)
+- [Pipeline design](PIPELINE.md)
+- [Transcription rules](transcription-rules.md)
+- [Security notes](SECURITY.md)
+- [Benchmark method and results](benchmarks/RESULTS.md)
+- [Contributing](CONTRIBUTING.md)
 
 ## Development
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m build
-.\.venv\Scripts\python.exe benchmarks\score_workspace.py <workspace>
 ```
-
-The repository excludes PDFs supplied by users, OCR outputs, models, runtime
-binaries, virtual environments, API keys, and local configuration. The sole
-committed PDF is the authorized 20-page real-scan benchmark excerpt described
-in [`benchmarks/fixture/NOTICE.md`](benchmarks/fixture/NOTICE.md).
-
-Read [PIPELINE.md](PIPELINE.md) for the architecture,
-[transcription-rules.md](transcription-rules.md) for the fidelity contract,
-[SECURITY.md](SECURITY.md) for the threat model, and
-[CONTRIBUTING.md](CONTRIBUTING.md) before proposing changes.
 
 ## License
 
-Bangla OCR source code is licensed under Apache-2.0. Third-party libraries,
-binaries, and model weights retain their own licenses.
+The Bangla OCR source code is licensed under Apache-2.0. Libraries, binaries,
+and model weights keep their original licenses.

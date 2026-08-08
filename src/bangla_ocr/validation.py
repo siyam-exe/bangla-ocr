@@ -745,8 +745,7 @@ def validate_book(book_root: Path) -> dict[str, Any]:
             }
         )
 
-    # Check the detected heading sequence in release order. Only numbered
-    # headings are compared, and findings remain review-only warnings.
+    # Compare numbered headings in release order.
     previous_heading: dict[str, Any] | None = None
     for heading in detected_headings:
         if previous_heading is None:

@@ -1,36 +1,36 @@
 # Processing architecture
 
-Bangla OCR is a one-document-at-a-time, evidence-preserving pipeline. The scan
+Bangla OCR is a one-document-at-a-time Bengali OCR pipeline. The scan
 is always the authority. OCR, heuristics, and optional AI can create proposals;
 only a human can verify a page.
 
 ## Runtime flow
 
-1. **Import** — a PDF is copied into the content-addressed source store. Invalid
+1. **Import:** a PDF is copied into the content-addressed source store. Invalid
    uploads and imports rejected before job creation are removed when the app
    created the copy.
-2. **Render** — PDFium renders the selected page at 220 DPI. Embedded text is
+2. **Render:** PDFium renders the selected page at 220 DPI. Embedded text is
    retained only as independent evidence.
-3. **Inspect** — contrast, sharpness, foreground ratio, border ink, content
+3. **Inspect:** contrast, sharpness, foreground ratio, border ink, content
    bounds, and line skew are measured.
-4. **Preprocess conservatively** — the page may remain unchanged, receive a
+4. **Preprocess conservatively:** the page may remain unchanged, receive a
    bounded deskew, a conservative border crop, or local contrast adjustment.
    Every operation and metric is saved.
-5. **Full-page OCR** — the explicitly selected engine runs. Surya is preferred.
+5. **Full-page OCR:** the explicitly selected engine runs. Surya is preferred.
    No model fallback occurs unless the user chooses it after a failure.
-6. **Automated checks** — the pipeline evaluates coverage, Bengali ratio,
+6. **Automated checks:** the pipeline evaluates coverage, Bengali ratio,
    punctuation balance, structural markers, likely uploader pages, and other
    risks. These checks flag; they do not rewrite.
-7. **High-resolution evidence** — up to three small or suspicious regions are
+7. **High-resolution evidence:** up to three small or suspicious regions are
    mapped back through crop/deskew transforms to the unchanged source, rendered
    at 400 DPI, and reread with bounded Surya recognition.
-8. **Human review** — the reviewer sees source and processed scans, editable
+8. **Human review:** the reviewer sees source and processed scans, editable
    text, signals, crop alternatives, revision history, and optional page-level
    AI suggestions.
-9. **Whole-document validation** — page order, inclusion, unresolved states,
+9. **Whole-document validation:** page order, inclusion, unresolved states,
    headings, quote/paragraph anomalies, blank output, duplicate content, and
    export readiness are checked together.
-10. **Export** — preview files are marked unverified. Verified Markdown and
+10. **Export:** preview files are marked unverified. Verified Markdown and
     plain text remain locked until all included pages are human verified and the
     latest structural audit passes.
 

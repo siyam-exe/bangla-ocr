@@ -175,7 +175,7 @@ def preprocess_page(
             }
         )
 
-    # Crop only when all four edges are conservative and meaningful space is saved.
+    # Crop only when every edge is safe and enough space is removed.
     padding_ratio = float(config["crop_padding_ratio"])
     maximum_edge = float(config["maximum_crop_per_edge_ratio"])
     left_ratio = x0 / width

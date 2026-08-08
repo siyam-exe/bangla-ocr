@@ -415,9 +415,7 @@ class SuryaEngine(OCREngine):
         if variant.startswith("multiscale-"):
             from surya.layout.schema import LayoutBox, LayoutResult
 
-            # A high-resolution evidence crop is already a known text block.
-            # Block mode gives it a bounded token budget instead of allowing a
-            # tiny strip to enter the full-page model's 12k-token decode path.
+            # Block mode caps decoding for small crop rereads.
             estimated_tokens = max(
                 50,
                 min(1200, ((len(embedded_text) * 2 + 49) // 50) * 50),

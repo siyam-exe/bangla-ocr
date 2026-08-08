@@ -51,9 +51,7 @@ if (-not $LlamaServer) {
 if ($LlamaServer -and (Test-Path -LiteralPath $LlamaServer)) {
     $env:LLAMA_CPP_BINARY = $LlamaServer
     $env:SURYA_INFERENCE_BACKEND = "llamacpp"
-    # Keep the server out of Surya's Windows atexit handler. That handler sends
-    # SIGTERM as Ctrl+C to the shared console process and can interrupt its own
-    # cleanup. This launcher tracks and stops only the server it created.
+    # Avoid Surya's Windows exit handler, which can interrupt cleanup.
     $env:SURYA_INFERENCE_KEEP_ALIVE = "1"
     if (-not $env:SURYA_INFERENCE_PARALLEL) { $env:SURYA_INFERENCE_PARALLEL = "1" }
     if (-not $env:SURYA_INFERENCE_CTX_SIZE) { $env:SURYA_INFERENCE_CTX_SIZE = "16384" }

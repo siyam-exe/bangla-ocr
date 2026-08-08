@@ -39,7 +39,7 @@
           <select id="ocr-engine" name="ocr_engine">
             {% for option in ocr.options %}
               <option value="{{ option.name }}" data-label="{{ option.label }}" data-available="{{ 'true' if option.available else 'false' }}" data-reason="{{ option.reason|e }}" {% if option.preferred %}selected{% endif %}>
-                {{ option.label }}{% if not option.available %} — unavailable{% endif %}
+                {{ option.label }}{% if not option.available %} (unavailable){% endif %}
               </option>
             {% endfor %}
           </select>
