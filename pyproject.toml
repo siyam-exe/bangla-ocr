@@ -24,7 +24,7 @@ dependencies = [
   "opencv-python-headless>=4.11,<5",
   "Pillow>=12.3,<13",
   "pypdf>=6,<7",
-  "pypdfium2>=5.10,<6",
+  "pypdfium2>=5.12.1,<6",
   "rapidfuzz>=3.14,<4",
   "waitress>=3.0,<4",
 ]
