@@ -1,0 +1,5 @@
+{
+  "enabled": false,
+  "model": "openrouter/free",
+  "daily_request_limit": 40
+}

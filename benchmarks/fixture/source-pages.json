@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "source_document": "Volume 002-1",
+  "source_sha256": "c5ca697dbb42f6cee55d155c0da36195a9bb693d5950e48ab8084f40703dfdfd",
+  "fixture_sha256": "41ae15a7d7ef6fdfc9fdd6b24b9f97b9892fdffbe23d054b7e1b1f27922a2df7",
+  "pages": [
+    {"benchmark_pdf_page": 1, "source_pdf_page": 3},
+    {"benchmark_pdf_page": 2, "source_pdf_page": 6},
+    {"benchmark_pdf_page": 3, "source_pdf_page": 17},
+    {"benchmark_pdf_page": 4, "source_pdf_page": 28},
+    {"benchmark_pdf_page": 5, "source_pdf_page": 50},
+    {"benchmark_pdf_page": 6, "source_pdf_page": 52},
+    {"benchmark_pdf_page": 7, "source_pdf_page": 70},
+    {"benchmark_pdf_page": 8, "source_pdf_page": 87},
+    {"benchmark_pdf_page": 9, "source_pdf_page": 101},
+    {"benchmark_pdf_page": 10, "source_pdf_page": 115},
+    {"benchmark_pdf_page": 11, "source_pdf_page": 130},
+    {"benchmark_pdf_page": 12, "source_pdf_page": 147},
+    {"benchmark_pdf_page": 13, "source_pdf_page": 149},
+    {"benchmark_pdf_page": 14, "source_pdf_page": 159},
+    {"benchmark_pdf_page": 15, "source_pdf_page": 168},
+    {"benchmark_pdf_page": 16, "source_pdf_page": 186},
+    {"benchmark_pdf_page": 17, "source_pdf_page": 207},
+    {"benchmark_pdf_page": 18, "source_pdf_page": 216},
+    {"benchmark_pdf_page": 19, "source_pdf_page": 233},
+    {"benchmark_pdf_page": 20, "source_pdf_page": 241}
+  ]
+}

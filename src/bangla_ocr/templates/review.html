@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Page {{ page.page_number }} · {{ book.title }}{% endblock %}
+{% block main_class %}review-shell{% endblock %}
+{% block content %}
+<header class="review-top">
+  <div class="review-location">
+    <a class="backlink" href="{{ url_for('book_dashboard', book_id=book.book_id) }}">← {{ book.title }}</a>
+    <strong>PDF page {{ page.page_number }}</strong>
+    <span class="status-pill status-{{ page.workflow.overall }}">{{ 'ready to review' if page.workflow.overall == 'automated_checks_passed' else page.workflow.overall|replace('_', ' ') }}</span>
+  </div>
+  <nav class="pager" aria-label="Page navigation">
+    {% if previous_number %}<a href="{{ url_for('page_review', book_id=book.book_id, page_number=previous_number) }}">← Previous</a>{% endif %}
+    <span>{{ page.page_number }}</span>
+    {% if next_number %}<a href="{{ url_for('page_review', book_id=book.book_id, page_number=next_number) }}">Next →</a>{% endif %}
+  </nav>
+</header>
+
+<div class="review-layout">
+  <section class="image-panel">
+    <div class="image-toolbar"><strong>Original scan</strong><button type="button" class="ghost zoom-reset">Toggle zoom</button></div>
+    <div class="image-stage">
+      <img id="source-image" src="{{ url_for('page_image', book_id=book.book_id, page_number=page.page_number, kind='source') }}" alt="Original PDF page {{ page.page_number }}">
+      <div id="region-highlight"></div>
+    </div>
+    {% if page.selected_image != page.source_image %}
+      <details class="processed-copy"><summary>Processed OCR image</summary><img src="{{ url_for('page_image', book_id=book.book_id, page_number=page.page_number, kind='selected') }}" alt="Processed page variant"></details>
+    {% endif %}
+  </section>
+
+  <section class="editor-panel">
+    {% if anomalies or page.decision.reasons or structural_findings %}
+    <details class="risk-panel" open>
+      <summary>Review signals <span>{{ (anomalies|length) + (page.decision.reasons|length) + (structural_findings|length) }}</span></summary>
+      <ul>
+        {% for finding in structural_findings %}<li><b>{{ finding.code|replace('_', ' ')|title }}:</b> {{ finding.message }}{% if finding.related_pages %}<small>PDF pages {{ finding.related_pages|join(', ') }}</small>{% endif %}</li>{% endfor %}
+        {% for anomaly in anomalies %}<li>{{ anomaly.message }}</li>{% endfor %}
+        {% for reason in page.decision.reasons %}<li>{{ reason }}</li>{% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+
+    <form method="post" class="editor-form" data-review-form>
+      <div class="editor-heading">
+        <label for="text">Page transcription</label>
+        <div><span>Exact source text · UTF-8</span><button type="button" class="ghost copy-page-text" data-copy-page-text>Copy page text</button></div>
+      </div>
+      <textarea id="text" name="text" lang="bn" spellcheck="false">{{ text }}</textarea>
+
+      <details class="metadata-box">
+        <summary>Page structure</summary>
+        <div class="form-grid">
+          <label>Heading<input name="heading" value="{{ page.manual.heading }}"></label>
+          <label>Page role<select name="page_role">{% for role in roles %}<option value="{{ role }}" {% if role == page.manual.page_role %}selected{% endif %}>{{ role|replace('_', ' ') }}</option>{% endfor %}</select></label>
+        </div>
+        <div class="checkbox-grid">
+          <label><input type="checkbox" name="include" {% if page.manual.include %}checked{% endif %}> Include in exported text</label>
+          <label><input type="checkbox" name="break_before" {% if page.manual.break_before %}checked{% endif %}> Paragraph break before page</label>
+          <label><input type="checkbox" name="join_without_space" {% if page.manual.join_without_space %}checked{% endif %}> Join split word to previous page</label>
+          <label><input type="checkbox" name="preserve_trailing_hyphen" {% if page.manual.preserve_trailing_hyphen %}checked{% endif %}> Preserve trailing hyphen</label>
+        </div>
+      </details>
+
+      <section class="verification-box">
+        <div class="form-grid">
+          <label>Reviewer<input name="reviewer" value="{{ page.workflow.human.reviewer }}" placeholder="Your name"></label>
+          <label>Review status<select name="human_status">
+            <option value="in_review" {% if page.workflow.human.status == "in_review" %}selected{% endif %}>In review</option>
+            <option value="unreviewed" {% if page.workflow.human.status == "unreviewed" %}selected{% endif %}>Not reviewed</option>
+            <option value="unresolved" {% if page.workflow.human.status == "unresolved" %}selected{% endif %}>Unresolved</option>
+            <option value="human_verified" {% if page.workflow.human.status == "human_verified" %}selected{% endif %}>Verified against scan</option>
+          </select></label>
+        </div>
+        <p>Use “Verified against scan” only after comparing the complete page.</p>
+      </section>
+
+      <div class="sticky-actions">
+        <span class="save-hint">Ctrl+S saves this page</span>
+        <div><button class="secondary" name="save_direction" value="stay">Save</button><button class="primary" name="save_direction" value="next">Save and next →</button></div>
+      </div>
+    </form>
+
+    {% if multiscale_regions %}
+    <section class="multiscale-review" aria-labelledby="multiscale-title">
+      <header>
+        <div><h2 id="multiscale-title">High-resolution scan checks</h2><p>Surya reread only these bounded regions at higher resolution. Nothing is applied without your choice.</p></div>
+        <span>{{ multiscale_regions|selectattr('status', 'equalto', 'pending')|list|length }} pending</span>
+      </header>
+      {% for region in multiscale_regions %}
+      <article class="multiscale-region status-{{ region.status }}">
+        <div class="crop-evidence">
+          {% if region.crop_image %}<img src="{{ url_for('multiscale_image', book_id=book.book_id, page_number=page.page_number, region_id=region.region_id) }}" alt="Higher-resolution crop for PDF page {{ page.page_number }}">{% endif %}
+          <small>PDF page {{ page.page_number }} · enlarged evidence crop</small>
+        </div>
+        <div class="crop-comparison">
+          <p class="region-reason">{{ region.reasons|join(' · ') }}</p>
+          {% if region.status in ['failed', 'unreadable'] %}
+            <strong>{% if region.status == 'unreadable' %}The enlarged crop produced no usable text{% else %}Crop OCR failed{% endif %}; the original full-page result was preserved. Inspect this region manually.</strong>
+          {% else %}
+            <div class="reading"><small>Full-page Surya</small><p lang="bn">{{ region.original }}</p></div>
+            <div class="reading alternative"><small>High-resolution crop</small><p lang="bn">{{ region.alternative }}</p></div>
+            {% if region.comparison %}<p class="comparison-score">Difference {{ "%.1f"|format(region.comparison.disagreement * 100) }}% · evidence only</p>{% endif %}
+            {% if region.status == 'pending' %}
+              <form method="post" action="{{ url_for('review_multiscale_region', book_id=book.book_id, page_number=page.page_number, region_id=region.region_id) }}">
+                <button class="accept" name="action" value="use_crop">Use high-resolution reading</button>
+                <button class="reject" name="action" value="keep_full_page">Keep full-page reading</button>
+              </form>
+            {% elif region.status == 'accepted' %}<span class="status-pill status-human_verified">High-resolution reading chosen</span>
+            {% elif region.status == 'kept_full_page' %}<span class="status-pill">Full-page reading kept</span>{% endif %}
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <details class="optional-assistance">
+      <summary><span><strong>Optional page suggestion</strong><small>Send only this page or selected OCR line to your configured vision model.</small></span><span>Open</span></summary>
+      <div class="assistance-body">
+        <p class="assistance-warning">Model output is unverified. Nothing is applied automatically, and accepting a suggestion returns this page to “In review”.</p>
+        {% if not api_key_configured or not openrouter.enabled %}
+          <a class="button secondary" href="{{ url_for('openrouter_settings') }}">Configure page suggestions</a>
+        {% else %}
+          <form method="post" action="{{ url_for('generate_ai_proposal', book_id=book.book_id, page_number=page.page_number) }}">
+            <label>Region<select name="line_index" id="line-selector"><option value="">Entire page</option>{% for line in lines %}<option value="{{ loop.index0 }}" data-bbox="{{ line.bbox|join(',') }}">Line {{ loop.index }} · {{ line.text[:90] }}</option>{% endfor %}</select></label>
+            <button class="secondary wide" type="submit">Request suggestion from {{ openrouter.model }}</button>
+          </form>
+        {% endif %}
+        {% for proposal in proposals %}
+          <article class="proposal">
+            <header><span>{{ proposal.model_used }}</span><small>{{ proposal.created_utc }}</small></header>
+            {% for change in proposal.changes %}
+              <div class="proposal-change proposal-{{ change.review_status }}">
+                <div class="change-text"><del>{{ change.original }}</del><span>→</span><ins>{{ change.replacement }}</ins></div>
+                <p>{{ change.reason }} · {{ "%.0f"|format(change.confidence * 100) }}% model confidence</p>
+                {% if change.review_status == "pending" %}
+                  <form method="post" action="{{ url_for('review_ai_change', book_id=book.book_id, page_number=page.page_number, request_id=proposal.request_id, change_index=change.index) }}"><button class="accept" name="action" value="accepted">Apply exact patch</button><button class="reject" name="action" value="rejected">Reject</button></form>
+                {% else %}<span class="status-pill">{{ change.review_status }}</span>{% endif %}
+              </div>
+            {% endfor %}
+          </article>
+        {% else %}<div class="empty-state compact">No saved suggestions for this page.</div>{% endfor %}
+      </div>
+    </details>
+  </section>
+</div>
+{% endblock %}
